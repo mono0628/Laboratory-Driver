@@ -1,0 +1,39 @@
+En power shell crear el .exe
+
+node -e "require('fs').copyFileSync(process.execPath, 'dist/LIS-Driver.exe')"
+
+Meter el driver dentro del .exe
+
+npx postject dist/LIS-Driver.exe NODE_SEA_BLOB dist/driver.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2
+
+
+
+---------------- Crear service en Windows ---------------------------
+sc.exe query "LIS-Driver-ACLTOP"
+
+Si aparece, detenlo:
+
+sc.exe stop "LIS-Driver-ACLTOP"
+
+Y elimínalo:
+
+sc.exe delete "LIS-Driver-ACLTOP"
+
+Espera unos segundos y verifica:
+
+sc.exe query "LIS-Driver-ACLTOP"
+
+crear servicio
+sc.exe create "LIS-Driver-ACLTOP" `
+    binPath= "C:\LIS\Drivers\ACLTOP\LIS-Driver-ACLTOP.exe" `
+    start= auto `
+    DisplayName= "LIS Driver - ACLTOP"
+
+sc.exe failure "LIS-Driver-ACLTOP" `
+    reset= 86400 `
+    actions= restart/5000/restart/10000/restart/30000
+
+--------------- pruebas de procesos -----------------------
+Get-CimInstance Win32_Process |
+>>     Where-Object {$_.Name -eq "node.exe" -or $_.Name -eq "LIS-Driver.exe"} |
+>>     Select-Object ProcessId, ParentProcessId, Name, CommandLine

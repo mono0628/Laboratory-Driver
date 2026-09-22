@@ -1,0 +1,29 @@
+{
+  "name": "laboratorio-lis-driver",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "node src/index.js",
+    "dev": "nodemon src/index.js --role=driver",
+    "dev:worker": "nodemon src/index.js --role=worker",
+    "dev:supervisor": "nodemon src/index.js --role=supervisor",
+    "build": "node build/build.js",
+    "blob": "node --experimental-sea-config sea-config.json"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.20.0",
+    "better-sqlite3": "^13.0.3",
+    "dotenv": "^17.4.2",
+    "serialport": "^13.0.0",
+    "ws": "^8.21.3"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "nodemon": "^3.1.14",
+    "postject": "^1.0.0-alpha.6"
+  }
+}
