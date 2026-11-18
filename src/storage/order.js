@@ -23,9 +23,9 @@ async function syncOrders(device){
         const stmt_test = db.prepare(`
                 INSERT INTO order_test 
                 (
-                    num_order,test_code,sample,code_universal,code_analyzer,consecutive
+                    num_order,test_code,sample,code_universal,code_analyzer,consecutive,status
                 )
-                VALUES(?,?,?,?,?,?)
+                VALUES(?,?,?,?,?,?,?)
                 ON CONFLICT(num_order,test_code)
                 DO UPDATE SET
                     code_universal = excluded.code_universal,
@@ -56,7 +56,8 @@ async function syncOrders(device){
                     item.sample,
                     item.code_universal,
                     item.code_analyzer,
-                    1
+                    1,
+                    'PENDING'
                 )
             }
             
@@ -107,6 +108,7 @@ async function getOrder(order,sample,device) {
           WHERE num_order = ? 
           AND sample = ?
           AND code_analyzer = ?
+          AND status = 'PENDING'
           `  
         )
 
@@ -117,6 +119,17 @@ async function getOrder(order,sample,device) {
             ...data,
             test: data_test
         }
+
+         const stmt_test_status = db.prepare(
+          `
+          UPDATE order_test SET status = 'PROGRAMMED'
+          WHERE num_order = ? 
+          AND sample = ?
+          AND code_analyzer = ?
+          `  
+        )
+
+        const data_test_status = stmt_test_status.run([order,sample,device])
 
         //console.log('ORDERS INFO:',resp);
 

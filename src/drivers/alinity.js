@@ -10,6 +10,8 @@ const calcularChecksum  = require('../utils/checksum')
 
         let frames = [];
         let numSegment = 1;
+
+        frames.push(ENQ)
         
         let H = {
                 'recordType': numSegment+"H",
@@ -83,7 +85,7 @@ const calcularChecksum  = require('../utils/checksum')
                     i+1;
         //});
 
-        frames.push(ENQ)
+        frames.push(EOT)
 
         return frames;
 

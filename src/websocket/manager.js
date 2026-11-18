@@ -1,8 +1,13 @@
 
 const WebSocket = require('ws');
+const { updateStateResult } = require('../storage/results');
 let ws = null;
 
 function connect(url) {
+
+    if(ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)){
+        return;
+    }
 
     ws = new WebSocket(
         url
@@ -16,12 +21,24 @@ function connect(url) {
         }))
     })
 
-    ws.on('message',(message) => {
+    ws.on('message',async (message) => {
 
         try {
             const data = JSON.parse(message);
 
             console.log('Mensaje recibido MDW',data);
+
+             if (data.event === 'ACK') {
+                if (data.success) {
+                    
+                    await updateStateResult(data.data,'SYNC')
+                    console.log('Actualizado en driver')
+
+                }else if(data.success===false){
+
+                    await updateStateResult(data.data,'NOTEXIST')
+
+                }}
         } catch (error) {
             console.error('Error procesado mensaje', error);
         }

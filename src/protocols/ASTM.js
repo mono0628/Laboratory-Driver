@@ -3,7 +3,9 @@ const { createResult } = require('../storage/results');
 const { getOrder } = require('../storage/order');
 //const { dateTodayString,dateToString } = require('../../utils/dateTodayString')
 //const calcularChecksum  = require('../../utils/checksum')
-const { ENQ, STX, EOT, ETX, ETB ,CR, LF,NAK,ACK} = require('../utils/constants')
+const { ENQ, STX, EOT, ETX, ETB ,CR, LF,NAK,ACK} = require('../utils/constants');
+const { saveLog } = require('../utils/logs');
+const { send } = require('../websocket/manager');
 
 let messageQueue = ''
 let delimiter = '';
@@ -16,6 +18,12 @@ let codeAnalyzer = '';
 
 const id = process.env.DEVICE_ID || process.argv[2];
 
+let frames = [];
+let countFrame = 0;
+let numOrder = '';
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve,ms))
+
 module.exports.start = async function(rawData,socket,driver,device){
     
     let segment = rawData //.split('\r')
@@ -24,18 +32,33 @@ module.exports.start = async function(rawData,socket,driver,device){
 
             case segment.indexOf(ENQ)>-1:
                 console.log("Entro por ENQ|",segment)
-                socket.write(ACK)
+                
+                sendSocket(socket,ACK)
             break;
 
             case segment.indexOf(EOT)>-1:
                 console.log("Entro por EOT|",segment)
+                countFrame=0;
+
 
             break;
 
             case segment.indexOf(ACK)>-1:
                 console.log("Entro por ACK|",segment)
 
+                    countFrame +=1;
+                    
+                    await delay(30);
 
+                    sendSocket(socket,frames[countFrame])
+
+            break;
+
+            case segment.indexOf(NAK)>-1:
+                console.log("Entro por NAK|",segment)
+
+                    sendSocket(socket,frames[countFrame])
+                  
             break;
 
             case segment.indexOf(STX)>-1:
@@ -79,7 +102,11 @@ module.exports.start = async function(rawData,socket,driver,device){
                         messageQueue = messageQueue + segment;
                         break;
                 }
-                socket.write(ACK)
+
+               
+                await delay(30);
+                sendSocket(socket,ACK);
+              
             break;
 
         }
@@ -176,7 +203,7 @@ async function handleASTM(message,driver,socket,device){
                     name,
                     assayStatus,
                     codeUniversal:code,
-                    analyzer:id,
+                    analyzer:device,
                     sample,
                     consecutive
                 }
@@ -212,7 +239,7 @@ async function handleResult(data){
 
 async function handleQuery(arrOrderQuery, driver, socket, device){
 
-    let frames = [];
+    //let frames = [];
 
         for (const orderQuery of arrOrderQuery) {
 
@@ -250,10 +277,24 @@ async function handleQuery(arrOrderQuery, driver, socket, device){
         }
             
         console.log('funciona para DxH');
+         
+        await delay(60);
 
-        for(const frame of frames){
+        sendSocket(socket,frames[countFrame]);
+       
+        /*for(const frame of frames){
 
+                await delay(60);
                 socket.write(frame)
+                saveLog('DRIVER: '+frame)
 
-        }
+        }*/
+}
+
+function sendSocket(socket, dato){
+    if(!dato) return;
+
+    socket.write(dato);
+    saveLog('DRIVER: '+dato);
+
 }

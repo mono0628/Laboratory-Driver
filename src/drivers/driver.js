@@ -1,7 +1,7 @@
 const config = require('../config')
 const db = require('../storage/database');
 const { syncAnalyzer, getAnalyzer } = require('../storage/analyzer');
-const manager = require('../websocket/manager')
+//const manager = require('../websocket/manager')
 
 console.log('node.js', config.driver.id);
 console.log(db)

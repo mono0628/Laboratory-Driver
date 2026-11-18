@@ -12,6 +12,9 @@ if (args.includes('--role=supervisor')) {
 }else if (args.includes('--role=order-sync')) {
     require('./workers/order-sync.worker');
 
+}else if (args.includes('--role=result-sync')) {
+    require('./workers/result.worker');
+
 } else {
 
     require('./supervisor/supervisor');

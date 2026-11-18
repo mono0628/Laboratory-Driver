@@ -97,6 +97,8 @@ db.exec(`
 
         consecutive INTEGER NOT NULL,
 
+        status TEXT,
+
         create_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 

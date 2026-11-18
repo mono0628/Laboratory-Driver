@@ -15,10 +15,10 @@ const workers = [
         file: '../websocket/server.js',
         role: 'websocket'
     },*/
-    // {
-    //     file: 'result.worker.js',
-    //     role: 'result'
-    // },
+     {
+        file: 'result.worker.js',
+        role: 'result-sync'
+    },
     // {
     //     file: 'queue.worker.js',
     //     role: 'queue'
